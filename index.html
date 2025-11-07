@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WELL WELL - The Truth About Crypto</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;700&family=Playfair+Display:ital,wght@1,400;1,700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;700&family=Dancing+Script:wght@400;700&display=swap');
         
         * {
             margin: 0;
@@ -179,78 +179,84 @@
         /* Hero Section */
         .hero-section {
             text-align: center;
-            padding: 60px 20px 40px;
+            padding: 60px 20px 20px;
             max-width: 1400px;
             margin: 0 auto;
         }
         
-        /* Logo - Propaganda Style */
+        /* Logo - Speech Bubble Style */
         .logo-container {
             position: relative;
             display: inline-block;
             margin-bottom: 30px;
         }
         
-        .geometric-frame {
-            position: absolute;
-            top: -20px;
-            left: -20px;
-            right: -20px;
-            bottom: -20px;
-            border: 4px solid #4ECDC4;
-            transform: rotate(-1deg);
-            z-index: 0;
-            animation: frameBreath 5s ease-in-out infinite;
+        .speech-bubble {
+            position: relative;
+            background: white;
+            padding: 40px 80px;
+            border-radius: 50px;
+            border: 6px solid #1A1A2E;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.2),
+                inset 0 0 0 4px #4ECDC4;
+            animation: bubbleFloat 6s ease-in-out infinite;
         }
         
-        @keyframes frameBreath {
-            0%, 100% { transform: rotate(-1deg) scale(1); }
-            50% { transform: rotate(1deg) scale(1.02); }
+        @keyframes bubbleFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-5px) scale(1.01); }
         }
         
-        .geometric-frame::before {
+        /* Speech bubble tail pointing left */
+        .speech-bubble::before {
             content: '';
             position: absolute;
-            top: -8px;
-            left: -8px;
-            right: -8px;
-            bottom: -8px;
-            border: 2px solid #FF6B6B;
-            transform: rotate(2deg);
+            left: -40px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-top: 30px solid transparent;
+            border-bottom: 30px solid transparent;
+            border-right: 40px solid #1A1A2E;
+        }
+        
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            left: -28px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-top: 22px solid transparent;
+            border-bottom: 22px solid transparent;
+            border-right: 32px solid white;
         }
         
         .logo-text {
             position: relative;
             z-index: 1;
-            font-family: 'Playfair Display', serif;
-            font-size: 120px;
+            font-family: 'Dancing Script', cursive;
+            font-size: 90px;
             font-weight: 700;
-            font-style: italic;
-            background: linear-gradient(135deg, #1A1A2E 0%, #4ECDC4 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 3px 3px 0px rgba(255, 107, 107, 0.3);
+            color: #1A1A2E;
             line-height: 1;
-            animation: logoBreath 6s ease-in-out infinite;
-        }
-        
-        @keyframes logoBreath {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.01); }
+            text-shadow: 2px 2px 0px rgba(78, 205, 196, 0.3);
         }
         
         /* Contract Address */
         .contract-address {
             background: #1A1A2E;
             color: #FFE66D;
-            padding: 15px 40px;
+            padding: 13px 60px;
             display: inline-block;
             font-size: 14px;
             letter-spacing: 2px;
             font-weight: 700;
             position: relative;
-            margin-bottom: 50px;
+            margin-bottom: 25px;
             clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
         }
         
@@ -266,65 +272,74 @@
             z-index: -1;
         }
         
-        /* Regional Sections - Propaganda Buttons */
-        .regions-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto 60px;
+        /* Regional Sections - Seamless Blend */
+        .regions-wrapper {
+            max-width: 1000px;
+            margin: 0 auto 40px;
             padding: 0 20px;
         }
         
+        .regions-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
         .region-button {
-            background: white;
-            border: none;
-            padding: 30px 20px;
+            background: rgba(255, 255, 255, 0.6);
+            border: 2px solid rgba(26, 26, 46, 0.2);
+            padding: 12px 20px;
             cursor: pointer;
             position: relative;
             overflow: hidden;
             transition: all 0.3s ease;
-            clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px));
+            flex-shrink: 0;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
         
         .region-button::before {
             content: '';
             position: absolute;
             top: 0;
-            left: -100%;
+            left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(78, 205, 196, 0.3), transparent);
-            transition: left 0.5s ease;
+            background: linear-gradient(135deg, rgba(78, 205, 196, 0.2), rgba(255, 107, 107, 0.2));
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         
         .region-button:hover::before {
-            left: 100%;
+            opacity: 1;
         }
         
         .region-button:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transform: translateY(-3px);
+            border-color: #4ECDC4;
+            box-shadow: 0 5px 20px rgba(78, 205, 196, 0.3);
         }
         
         .region-flag {
-            font-size: 40px;
+            font-size: 24px;
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
         
         .region-name {
-            font-size: 20px;
+            font-size: 12px;
             font-weight: 700;
             color: #1A1A2E;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             text-transform: uppercase;
         }
         
         /* Breaking News Header */
         .breaking-header {
             text-align: center;
-            margin: 60px 0 40px;
+            margin: 40px 0 40px;
             position: relative;
         }
         
@@ -534,9 +549,15 @@
         /* Responsive */
         @media (max-width: 768px) {
             .logo-text { font-size: 60px; }
+            .speech-bubble { padding: 30px 50px; }
             .breaking-title { font-size: 48px; }
             .articles-grid { grid-template-columns: 1fr; }
-            .regions-container { grid-template-columns: repeat(2, 1fr); }
+            .regions-container { 
+                gap: 15px;
+            }
+            .region-button {
+                padding: 10px 15px;
+            }
             .sun-rays { width: 400px; height: 400px; right: -100px; }
         }
     </style>
@@ -592,8 +613,9 @@
         <!-- Hero -->
         <div class="hero-section">
             <div class="logo-container">
-                <div class="geometric-frame"></div>
-                <div class="logo-text">WELL WELL</div>
+                <div class="speech-bubble">
+                    <div class="logo-text">Well well well</div>
+                </div>
             </div>
             
             <div class="contract-address">
@@ -602,31 +624,33 @@
         </div>
 
         <!-- Regional Sections -->
-        <div class="regions-container">
-            <button class="region-button" onclick="alert('Coming Soon!')">
-                <span class="region-flag">🌎</span>
-                <span class="region-name">Americas</span>
-            </button>
-            <button class="region-button" onclick="alert('Coming Soon!')">
-                <span class="region-flag">🌍</span>
-                <span class="region-name">Europe</span>
-            </button>
-            <button class="region-button" onclick="alert('Coming Soon!')">
-                <span class="region-flag">🌏</span>
-                <span class="region-name">Asia</span>
-            </button>
-            <button class="region-button" onclick="alert('Coming Soon!')">
-                <span class="region-flag">🦘</span>
-                <span class="region-name">Oceania</span>
-            </button>
-            <button class="region-button" onclick="alert('Coming Soon!')">
-                <span class="region-flag">🌍</span>
-                <span class="region-name">Africa</span>
-            </button>
-            <button class="region-button" onclick="alert('Coming Soon!')">
-                <span class="region-flag">🌐</span>
-                <span class="region-name">Global</span>
-            </button>
+        <div class="regions-wrapper">
+            <div class="regions-container">
+                <button class="region-button" onclick="alert('Coming Soon!')">
+                    <span class="region-flag">🌎</span>
+                    <span class="region-name">Americas</span>
+                </button>
+                <button class="region-button" onclick="alert('Coming Soon!')">
+                    <span class="region-flag">🌍</span>
+                    <span class="region-name">Europe</span>
+                </button>
+                <button class="region-button" onclick="alert('Coming Soon!')">
+                    <span class="region-flag">🌏</span>
+                    <span class="region-name">Asia</span>
+                </button>
+                <button class="region-button" onclick="alert('Coming Soon!')">
+                    <span class="region-flag">🦘</span>
+                    <span class="region-name">Oceania</span>
+                </button>
+                <button class="region-button" onclick="alert('Coming Soon!')">
+                    <span class="region-flag">🌍</span>
+                    <span class="region-name">Africa</span>
+                </button>
+                <button class="region-button" onclick="alert('Coming Soon!')">
+                    <span class="region-flag">🌐</span>
+                    <span class="region-name">Global</span>
+                </button>
+            </div>
         </div>
 
         <!-- Breaking News Section -->
