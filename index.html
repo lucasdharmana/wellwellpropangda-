@@ -589,13 +589,46 @@
             .thought-bubble-small:nth-child(2) { width: 18px; height: 18px; left: -20px; }
             .thought-bubble-small:nth-child(3) { width: 12px; height: 12px; left: -32px; }
             .breaking-title { font-size: 48px; }
-            .articles-grid { grid-template-columns: 1fr; }
+            
+            /* Keep articles in 2 columns on mobile */
+            .articles-grid { 
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+            
+            /* Adjust article cards for smaller screens */
+            .article-image { height: 180px; font-size: 50px; }
+            .article-content { padding: 20px; }
+            .article-title { font-size: 24px; }
+            .article-excerpt { font-size: 14px; }
+            
+            /* Keep regions on single line */
             .regions-container { 
-                gap: 15px;
+                gap: 8px;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                overflow-y: hidden;
+                padding: 10px 5px;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
             }
+            
+            .regions-container::-webkit-scrollbar {
+                display: none;
+            }
+            
+            /* Make region buttons more transparent and smaller */
             .region-button {
-                padding: 10px 15px;
+                padding: 10px 12px;
+                background: rgba(255, 255, 255, 0.4);
+                backdrop-filter: blur(8px);
+                flex-shrink: 0;
+                min-width: 80px;
             }
+            
+            .region-flag { font-size: 20px; margin-bottom: 3px; }
+            .region-name { font-size: 9px; letter-spacing: 0.5px; }
+            
             .sun-rays { width: 400px; height: 400px; right: -100px; }
         }
     </style>
