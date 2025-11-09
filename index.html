@@ -528,56 +528,111 @@
         
         /* Social Footer */
         .social-footer {
-            background: #1A1A2E;
-            padding: 40px 20px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(26, 26, 46, 0.3) 100%);
+            padding: 60px 20px;
             text-align: center;
         }
         
         .social-title {
             font-family: 'Bebas Neue', sans-serif;
             font-size: 36px;
-            color: white;
+            color: #1A1A2E;
             letter-spacing: 4px;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
         .social-buttons {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 30px;
             flex-wrap: wrap;
         }
         
         .social-button {
-            background: transparent;
-            border: 3px solid white;
-            color: white;
-            padding: 15px 40px;
-            font-size: 16px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.4);
+            border: 2px solid rgba(26, 26, 46, 0.2);
+            color: #1A1A2E;
+            border-radius: 50%;
             cursor: pointer;
-            transition: all 0.3s ease;
-            clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            position: relative;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .social-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(78, 205, 196, 0.3), rgba(255, 107, 107, 0.3));
+            opacity: 0;
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .social-button:hover::before {
+            opacity: 1;
         }
         
         .social-button:hover {
-            background: white;
-            color: #1A1A2E;
-            transform: translateY(-3px);
+            transform: translateY(-10px) scale(1.15);
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 
+                0 15px 35px rgba(78, 205, 196, 0.3),
+                0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
-        .social-button.telegram { border-color: #4ECDC4; }
-        .social-button.telegram:hover { background: #4ECDC4; color: white; }
+        .social-button span {
+            position: relative;
+            z-index: 1;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
         
-        .social-button.twitter { border-color: #FFE66D; }
-        .social-button.twitter:hover { background: #FFE66D; color: #1A1A2E; }
+        .social-button:hover span {
+            transform: scale(1.15) rotate(5deg);
+        }
         
-        .social-button.dex { border-color: #FF6B6B; }
-        .social-button.dex:hover { background: #FF6B6B; color: white; }
+        /* Individual button hover colors */
+        .social-button.x-profile:hover,
+        .social-button.x-community:hover {
+            border-color: #1A1A2E;
+            box-shadow: 
+                0 15px 35px rgba(26, 26, 46, 0.25),
+                0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .social-button.telegram:hover {
+            border-color: #4ECDC4;
+            box-shadow: 
+                0 15px 35px rgba(78, 205, 196, 0.4),
+                0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .social-button.telegram:hover span {
+            transform: translateX(4px) translateY(-2px) rotate(-15deg);
+        }
+        
+        .social-button.dex:hover {
+            border-color: #FFE66D;
+            box-shadow: 
+                0 15px 35px rgba(255, 230, 109, 0.4),
+                0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .social-button.dex:hover span {
+            transform: scale(1.2) rotate(-5deg);
+        }
         
         /* Responsive */
         @media (max-width: 768px) {
@@ -853,11 +908,20 @@
 
         <!-- Social Footer -->
         <div class="social-footer">
-            <h2 class="social-title">Join The Noticing</h2>
+            <h2 class="social-title">Join The Movement</h2>
             <div class="social-buttons">
-                <a href="#" class="social-button telegram">Telegram</a>
-                <a href="#" class="social-button twitter">Twitter / X</a>
-                <a href="#" class="social-button dex">DexScreener</a>
+                <a href="#" class="social-button x-profile" title="X Profile">
+                    <span>𝕏</span>
+                </a>
+                <a href="#" class="social-button x-community" title="X Community">
+                    <span>𝕏</span>
+                </a>
+                <a href="#" class="social-button telegram" title="Telegram">
+                    <span>✈</span>
+                </a>
+                <a href="#" class="social-button dex" title="DexScreener">
+                    <span>🦅</span>
+                </a>
             </div>
         </div>
     </div>
