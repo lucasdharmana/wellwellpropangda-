@@ -581,7 +581,13 @@
         
         /* Responsive */
         @media (max-width: 768px) {
-            .logo-container { padding-left: 60px; }
+            /* Reduce logo size and adjust positioning to show all thought bubbles */
+            .logo-container { 
+                padding-left: 50px;
+                transform: scale(0.75);
+                transform-origin: center;
+                margin-bottom: -10px;
+            }
             .logo-text { 
                 font-size: 50px;
                 white-space: nowrap;
@@ -591,6 +597,29 @@
             .thought-bubble-small:nth-child(1) { width: 28px; height: 28px; }
             .thought-bubble-small:nth-child(2) { width: 18px; height: 18px; left: -20px; }
             .thought-bubble-small:nth-child(3) { width: 12px; height: 12px; left: -32px; }
+            
+            /* Make LIVE ticker thinner on mobile to match desktop */
+            .live-ticker {
+                padding: 8px 0;
+            }
+            
+            .live-badge {
+                padding: 3px 10px;
+                font-size: 11px;
+                letter-spacing: 2px;
+                left: 15px;
+            }
+            
+            .ticker-content {
+                padding-left: 80px;
+            }
+            
+            .ticker-item {
+                font-size: 13px;
+                padding: 0 30px;
+            }
+            
+            /* Optimize other mobile elements */
             .breaking-title { font-size: 48px; }
             
             /* Keep articles in 2 columns on mobile */
