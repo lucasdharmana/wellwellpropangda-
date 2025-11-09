@@ -115,9 +115,9 @@
             background: #1A1A2E;
             color: #FFE66D;
             text-align: center;
-            padding: 8px;
-            font-size: 12px;
-            letter-spacing: 3px;
+            padding: 6px;
+            font-size: 10px;
+            letter-spacing: 2.4px;
             font-weight: 700;
             border-bottom: 3px solid #FFE66D;
         }
@@ -126,10 +126,10 @@
         .live-ticker {
             background: #DC143C;
             color: white;
-            padding: 12px 0;
+            padding: 10px 0;
             overflow: hidden;
             position: relative;
-            border-bottom: 4px solid #8B0000;
+            border-bottom: 3px solid #8B0000;
         }
         
         .live-badge {
@@ -139,10 +139,10 @@
             transform: translateY(-50%);
             background: white;
             color: #DC143C;
-            padding: 4px 12px;
+            padding: 3px 10px;
             font-weight: 700;
-            font-size: 14px;
-            letter-spacing: 2px;
+            font-size: 11px;
+            letter-spacing: 1.6px;
             z-index: 2;
             animation: pulse 2s ease-in-out infinite;
         }
@@ -154,7 +154,7 @@
         
         .ticker-content {
             display: flex;
-            animation: scroll 30s linear infinite;
+            animation: scroll 27s linear infinite;
             padding-left: 100px;
         }
         
@@ -162,8 +162,8 @@
             white-space: nowrap;
             padding: 0 40px;
             font-weight: 600;
-            font-size: 15px;
-            letter-spacing: 1px;
+            font-size: 12px;
+            letter-spacing: 0.8px;
         }
         
         .ticker-item::before {
@@ -179,7 +179,7 @@
         /* Hero Section */
         .hero-section {
             text-align: center;
-            padding: 60px 20px 20px;
+            padding: 40px 20px 20px;
             max-width: 1400px;
             margin: 0 auto;
             display: flex;
@@ -191,7 +191,7 @@
         .logo-container {
             position: relative;
             display: inline-block;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             padding-left: 80px; /* Space for thought bubble trail */
         }
         
@@ -289,7 +289,7 @@
             letter-spacing: 2px;
             font-weight: 700;
             position: relative;
-            margin: 0 auto 25px;
+            margin: 0 auto 20px;
             clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
         }
         
@@ -308,7 +308,7 @@
         /* Regional Sections - Seamless Blend */
         .regions-wrapper {
             max-width: 1000px;
-            margin: 0 auto 40px;
+            margin: 0 auto 30px;
             padding: 0 20px;
         }
         
@@ -372,7 +372,7 @@
         /* Breaking News Header */
         .breaking-header {
             text-align: center;
-            margin: 40px 0 40px;
+            margin: 30px 0 40px;
             position: relative;
         }
         
@@ -581,12 +581,17 @@
         
         /* Responsive */
         @media (max-width: 768px) {
+            /* Tighten mobile spacing */
+            .hero-section {
+                padding: 30px 20px 15px;
+            }
+            
             /* Reduce logo size and adjust positioning to show all thought bubbles */
             .logo-container { 
                 padding-left: 50px;
                 transform: scale(0.75);
                 transform-origin: center;
-                margin-bottom: -10px;
+                margin-bottom: -15px;
             }
             .logo-text { 
                 font-size: 50px;
@@ -604,32 +609,33 @@
                 font-size: 11px;
                 letter-spacing: 1.5px;
                 background: #1A1A2E;
-                margin: 0 auto 20px;
+                margin: 0 auto 15px;
             }
             
             /* Make LIVE ticker thinner on mobile to match desktop */
             .live-ticker {
-                padding: 8px 0;
+                padding: 6px 0;
             }
             
             .live-badge {
-                padding: 3px 10px;
-                font-size: 11px;
-                letter-spacing: 2px;
+                padding: 2px 8px;
+                font-size: 9px;
+                letter-spacing: 1.6px;
                 left: 15px;
             }
             
             .ticker-content {
-                padding-left: 80px;
+                padding-left: 70px;
             }
             
             .ticker-item {
-                font-size: 13px;
-                padding: 0 30px;
+                font-size: 10px;
+                padding: 0 25px;
             }
             
             /* Optimize other mobile elements */
             .breaking-title { font-size: 48px; }
+            .breaking-header { margin: 25px 0 35px; }
             
             /* Keep articles in 2 columns on mobile */
             .articles-grid { 
@@ -646,7 +652,7 @@
             /* Fix wrapper padding for mobile */
             .regions-wrapper {
                 padding: 0;
-                margin: 0 auto 40px;
+                margin: 0 auto 30px;
             }
             
             /* Keep regions on single line with proper scroll */
@@ -738,7 +744,7 @@
                     <div class="thought-bubble-small"></div>
                 </div>
                 <div class="speech-bubble">
-                    <div class="logo-text">Well Well Well</div>
+                    <div class="logo-text">Well well well</div>
                 </div>
             </div>
             
@@ -883,4 +889,4 @@
         });
     </script>
 </body>
-</html>F
+</html>
