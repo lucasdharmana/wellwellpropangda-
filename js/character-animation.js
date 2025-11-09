@@ -6,17 +6,17 @@
 
     // Configuration - EDIT THESE PATHS TO MATCH YOUR IMAGE LOCATIONS
     const characterImages = {
-        jew: '/images/wellwell12347_jew.png',       // First to appear
-        africa: '/images/wellwell12347_africa.png', // Second to appear
-        india: '/images/wellwell12347_india.png'    // Third to appear
+        jew: 'images/wellwell12347_jew.png',       // First to appear
+        africa: 'images/wellwell12347_africa.png', // Second to appear
+        india: 'images/wellwell12347_india.png'    // Third to appear
     };
 
     const config = {
         initialDelay: 3000,      // Wait 3 seconds after page load
         staggerDelay: 400,       // Delay between each character (ms)
-        animationDuration: 2500, // How long they take to run across (ms)
+        animationDuration: 4500, // How long they take to run across (ms) - SLOWED DOWN
         characterSize: 120,      // Size in pixels
-        logoSelector: '.speech-bubble',      // CSS selector for your logo (e.g., '#logo' or '.site-title')
+        logoSelector: '.speech-bubble',      // CSS selector for your logo
         // IMPORTANT: Set logoSelector to make characters disappear behind your logo!
         // Example: logoSelector: '#logo' or logoSelector: '.thought-bubble'
     };
@@ -29,6 +29,17 @@
         const img = document.createElement('img');
         img.src = imagePath;
         img.alt = 'Running character';
+        
+        // Add error handling for image loading
+        img.onerror = function() {
+            console.error('Failed to load character image:', imagePath);
+            console.log('Check that the image exists at:', window.location.origin + '/' + imagePath);
+        };
+        
+        img.onload = function() {
+            console.log('Successfully loaded character image:', imagePath);
+        };
+        
         character.appendChild(img);
         
         document.body.appendChild(character);
@@ -121,15 +132,18 @@
             const logo = document.querySelector(config.logoSelector);
             if (logo) {
                 const rect = logo.getBoundingClientRect();
+                // Center the characters vertically on the logo
                 targetY = rect.top + (rect.height / 2) - (config.characterSize / 2);
+                console.log('Logo found at Y position:', targetY, 'Logo bounds:', rect);
             } else {
                 // Logo not found, use top of screen
-                console.warn('Logo selector not found, using top-center position');
-                targetY = 50;
+                console.warn('Logo selector "' + config.logoSelector + '" not found, using default position');
+                targetY = 100;
             }
         } else {
             // No logo selector provided, aim for top area
-            targetY = 50;
+            console.log('No logo selector set, using default position');
+            targetY = 100;
         }
 
         return targetY;
