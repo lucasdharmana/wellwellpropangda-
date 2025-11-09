@@ -562,7 +562,6 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
             position: relative;
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
@@ -593,13 +592,16 @@
                 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
-        .social-button span {
+        .social-button img {
+            width: 38px;
+            height: 38px;
             position: relative;
             z-index: 1;
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            object-fit: contain;
         }
         
-        .social-button:hover span {
+        .social-button:hover img {
             transform: scale(1.15) rotate(5deg);
         }
         
@@ -619,7 +621,7 @@
                 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
-        .social-button.telegram:hover span {
+        .social-button.telegram:hover img {
             transform: translateX(4px) translateY(-2px) rotate(-15deg);
         }
         
@@ -630,7 +632,7 @@
                 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
-        .social-button.dex:hover span {
+        .social-button.dex:hover img {
             transform: scale(1.2) rotate(-5deg);
         }
         
@@ -911,16 +913,16 @@
             <h2 class="social-title">Join The Movement</h2>
             <div class="social-buttons">
                 <a href="#" class="social-button x-profile" title="X Profile">
-                    <span>𝕏</span>
+                    <img src="/mnt/user-data/uploads/IMG_6947.png" alt="X Logo">
                 </a>
                 <a href="#" class="social-button x-community" title="X Community">
-                    <span>𝕏</span>
+                    <img src="/mnt/user-data/uploads/IMG_6947.png" alt="X Logo">
                 </a>
                 <a href="#" class="social-button telegram" title="Telegram">
-                    <span>✈</span>
+                    <img src="/mnt/user-data/uploads/IMG_6948.png" alt="Telegram Logo">
                 </a>
                 <a href="#" class="social-button dex" title="DexScreener">
-                    <span>🦅</span>
+                    <img src="/mnt/user-data/uploads/IMG_6955.png" alt="DexScreener Logo">
                 </a>
             </div>
         </div>
