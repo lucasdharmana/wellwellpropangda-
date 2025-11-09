@@ -16,7 +16,7 @@
         staggerDelay: 400,       // Delay between each character (ms)
         animationDuration: 2500, // How long they take to run across (ms)
         characterSize: 120,      // Size in pixels
-        logoSelector: null,      // CSS selector for your logo (e.g., '#logo' or '.site-title')
+        logoSelector: '.speech-bubble',      // CSS selector for your logo (e.g., '#logo' or '.site-title')
         // IMPORTANT: Set logoSelector to make characters disappear behind your logo!
         // Example: logoSelector: '#logo' or logoSelector: '.thought-bubble'
     };
