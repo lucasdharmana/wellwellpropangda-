@@ -1,88 +1,48 @@
 (function() {
     'use strict';
 
-    const characters = [
-        'images/wellwell12347_india.png',
-        'images/wellwell12347_jew.png',
-        'images/wellwell12347_africa.png'
-    ];
-
-    const config = {
-        minInterval: 3000,
-        maxInterval: 8000,
-        minDuration: 4000,
-        maxDuration: 8000,
-        characterSize: 120,
-        enabled: true,
+    const characterImages = {
+        jew: 'images/wellwell12347_jew.png',
+        africa: 'images/wellwell12347_africa.png',
+        india: 'images/wellwell12347_india.png'
     };
 
-    function random(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+    const config = {
+        initialDelay: 3000,
+        staggerDelay: 400,
+        animationDuration: 2500,
+        characterSize: 120,
+        logoSelector: null,
+    };
 
-    function getRandomCharacter() {
-        return characters[random(0, characters.length - 1)];
-    }
-
-    function spawnCharacter() {
-        if (!config.enabled) return;
-
+    function spawnCharacter(imagePath, targetY) {
         const character = document.createElement('div');
-        character.className = 'character';
+        character.className = 'character flip';
         
         const img = document.createElement('img');
-        img.src = getRandomCharacter();
+        img.src = imagePath;
         img.alt = 'Running character';
         character.appendChild(img);
         
         document.body.appendChild(character);
 
-        const direction = random(0, 3);
-        const duration = random(config.minDuration, config.maxDuration);
         const screenWidth = window.innerWidth;
-        const screenHeight = window.innerHeight;
-        
-        let startX, startY, endX, endY;
-
-        switch(direction) {
-            case 0:
-                startX = -config.characterSize;
-                startY = random(0, screenHeight - config.characterSize);
-                endX = screenWidth + config.characterSize;
-                endY = startY;
-                break;
-            case 1:
-                startX = screenWidth + config.characterSize;
-                startY = random(0, screenHeight - config.characterSize);
-                endX = -config.characterSize;
-                endY = startY;
-                character.classList.add('flip');
-                break;
-            case 2:
-                startX = random(0, screenWidth - config.characterSize);
-                startY = -config.characterSize;
-                endX = startX;
-                endY = screenHeight + config.characterSize;
-                break;
-            case 3:
-                startX = random(0, screenWidth - config.characterSize);
-                startY = screenHeight + config.characterSize;
-                endX = startX;
-                endY = -config.characterSize;
-                break;
-        }
+        const startX = screenWidth + config.characterSize;
+        const startY = targetY;
+        const endX = -config.characterSize;
+        const endY = targetY;
 
         character.style.left = startX + 'px';
         character.style.top = startY + 'px';
         character.style.opacity = '1';
         character.classList.add('running');
-        character.style.animation = `runAcross ${duration}ms linear`;
+        character.style.animation = `runAcross ${config.animationDuration}ms linear`;
 
         const startTime = Date.now();
         
         function animate() {
             const elapsed = Date.now() - startTime;
-            const progress = Math.min(elapsed / duration, 1);
+            const progress = Math.min(elapsed / config.animationDuration, 1);
 
             const currentX = startX + (endX - startX) * progress;
             const currentY = startY + (endY - startY) * progress;
@@ -100,32 +60,55 @@
         animate();
     }
 
-    function scheduleNextSpawn() {
-        const interval = random(config.minInterval, config.maxInterval);
+    function getTargetY() {
+        let targetY;
+
+        if (config.logoSelector) {
+            const logo = document.querySelector(config.logoSelector);
+            if (logo) {
+                const rect = logo.getBoundingClientRect();
+                targetY = rect.top + (rect.height / 2) - (config.characterSize / 2);
+            } else {
+                targetY = 50;
+            }
+        } else {
+            targetY = 50;
+        }
+
+        return targetY;
+    }
+
+    function startSequence() {
+        const targetY = getTargetY();
+
         setTimeout(() => {
-            spawnCharacter();
-            scheduleNextSpawn();
-        }, interval);
+            spawnCharacter(characterImages.jew, targetY - 40);
+        }, 0);
+
+        setTimeout(() => {
+            spawnCharacter(characterImages.africa, targetY);
+        }, config.staggerDelay);
+
+        setTimeout(() => {
+            spawnCharacter(characterImages.india, targetY + 40);
+        }, config.staggerDelay * 2);
     }
 
     function init() {
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', startAnimation);
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(startSequence, config.initialDelay);
+            });
         } else {
-            startAnimation();
+            setTimeout(startSequence, config.initialDelay);
         }
-    }
-
-    function startAnimation() {
-        scheduleNextSpawn();
-        setTimeout(() => spawnCharacter(), 500);
     }
 
     init();
 
     window.CharacterAnimation = {
         config: config,
-        spawn: spawnCharacter
+        startSequence: startSequence
     };
 
 })();
