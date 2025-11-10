@@ -13,9 +13,9 @@
 
     const config = {
         initialDelay: 3000,
-        animationDuration: 3500,  // Slower animation
-        startSize: 30,
-        endSize: 100,
+        animationDuration: 4000,  // Even slower
+        startSize: 30,            // Small at start (far away)
+        endSize: 180,             // 50% BIGGER than original (was 120, now 180)
         logoSelector: '.speech-bubble',
     };
 
@@ -43,38 +43,58 @@
 
         const logoRect = logo.getBoundingClientRect();
         
-        // Starting positions: at the left or right edge of the bubble
+        // Starting positions: at the CORNERS of the bubble (where it curves)
         let startX, startY;
         
         if (side === 'left') {
-            // Start at LEFT edge of bubble
-            startX = logoRect.left;
-            startY = logoRect.top + (logoRect.height / 2);
+            // Start at LEFT CORNER/EDGE of bubble (where it curves on left side)
+            startX = logoRect.left - 20;  // Slightly outside the left edge
+            startY = logoRect.top + (logoRect.height * 0.4); // Upper-middle of bubble
             character.classList.remove('flip');
         } else {
-            // Start at RIGHT edge of bubble
-            startX = logoRect.right - config.startSize;
-            startY = logoRect.top + (logoRect.height / 2);
+            // Start at RIGHT CORNER/EDGE of bubble (where it curves on right side)
+            startX = logoRect.right - config.startSize + 20; // Slightly outside right edge
+            startY = logoRect.top + (logoRect.height * 0.4); // Upper-middle of bubble
             character.classList.add('flip');
         }
 
-        // Find the black line (the region nav bar)
-        // Look for the nav/section with AMERICAS, EUROPE, ASIA, etc.
+        // Find the EXACT black line above AMERICAS, EUROPE, ASIA
         let targetY;
-        const regionNav = document.querySelector('nav') || 
-                         document.querySelector('.regions') ||
-                         document.querySelector('[class*="region"]');
         
-        if (regionNav) {
-            const navRect = regionNav.getBoundingClientRect();
-            targetY = navRect.top - config.endSize - 10; // Stop just above the nav
-            console.log('Found region nav at Y:', targetY);
+        // Method 1: Look for text containing region names
+        const allElements = document.querySelectorAll('*');
+        let regionElement = null;
+        
+        for (let el of allElements) {
+            const text = el.textContent.trim();
+            if (text.includes('AMERICAS') || text.includes('AMERICA')) {
+                regionElement = el;
+                break;
+            }
+        }
+        
+        if (regionElement) {
+            const rect = regionElement.getBoundingClientRect();
+            // Stop at the line ABOVE these labels (the black line)
+            targetY = rect.top - config.endSize - 30;
+            console.log('Found AMERICAS at Y:', rect.top, '- Characters stop at:', targetY);
         } else {
-            // Fallback: find the black line visually (look for elements near the bubble)
+            // Method 2: The black line is below "CA: COMING SOON" banner
             const bubbleBottom = logoRect.bottom;
-            // Estimate: black line is roughly 200-250px below the bubble
-            targetY = bubbleBottom + 180;
-            console.log('Using estimated target Y:', targetY);
+            const comingSoon = document.querySelector('[class*="coming"]') || 
+                             Array.from(document.querySelectorAll('*')).find(el => 
+                                 el.textContent.includes('COMING SOON')
+                             );
+            
+            if (comingSoon) {
+                const csRect = comingSoon.getBoundingClientRect();
+                targetY = csRect.bottom + 30; // Just below coming soon banner
+                console.log('Using COMING SOON position, stop at:', targetY);
+            } else {
+                // Fallback
+                targetY = bubbleBottom + 140;
+                console.log('Using fallback position:', targetY);
+            }
         }
 
         // End positions: spread out along the black line
@@ -82,14 +102,14 @@
         const screenWidth = window.innerWidth;
         
         if (side === 'left') {
-            // Jew stops on the left side (near AMERICAS)
-            targetX = screenWidth * 0.15;
+            // Jew stops on the far left (near AMERICAS)
+            targetX = screenWidth * 0.12;
         } else if (side === 'center') {
-            // India stops in center-right (near ASIA)
-            targetX = screenWidth * 0.5;
+            // India stops in center (near ASIA)
+            targetX = screenWidth * 0.48;
         } else {
-            // Africa stops on the right side (near AFRICA)
-            targetX = screenWidth * 0.75;
+            // Africa stops on the right (near AFRICA)
+            targetX = screenWidth * 0.72;
         }
 
         // Set initial state (small, invisible, behind bubble)
