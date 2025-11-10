@@ -1,26 +1,25 @@
 // Character Animation Script for WELL WELL Website
-// Characters emerge from behind logo, run toward camera (getting bigger), stop at news sections
+// Characters emerge from behind bubble sides and run down to the black subject line
 
 (function() {
     'use strict';
 
     // Configuration
     const characterImages = {
-        jew: 'images/wellwell12347_jew.png',      // Goes to Americas (left)
-        africa: 'images/wellwell12347_africa.png', // Goes to Africa (right)
-        india: 'images/wellwell12347_india.png'    // Goes to Asia (right-center)
+        jew: 'images/wellwell12347_jew.png',
+        africa: 'images/wellwell12347_africa.png',
+        india: 'images/wellwell12347_india.png'
     };
 
     const config = {
-        initialDelay: 3000,      // Wait 3 seconds after page load
-        animationDuration: 2500, // How long animation takes
-        startSize: 40,           // Starting size (small, far away)
-        endSize: 120,            // Ending size (bigger, closer)
+        initialDelay: 3000,
+        animationDuration: 3500,  // Slower animation
+        startSize: 30,
+        endSize: 100,
         logoSelector: '.speech-bubble',
     };
 
-    // Create and animate a single character
-    function spawnCharacter(imagePath, targetSection) {
+    function spawnCharacter(imagePath, side) {
         const character = document.createElement('div');
         character.className = 'character';
         
@@ -35,7 +34,7 @@
         character.appendChild(img);
         document.body.appendChild(character);
 
-        // Get logo position (starting point - behind the bubble)
+        // Get logo position
         const logo = document.querySelector(config.logoSelector);
         if (!logo) {
             console.warn('Logo not found');
@@ -43,49 +42,63 @@
         }
 
         const logoRect = logo.getBoundingClientRect();
-        const logoCenterX = logoRect.left + (logoRect.width / 2);
-        const logoCenterY = logoRect.top + (logoRect.height / 2);
-
-        // Calculate target position based on section
-        let targetX, targetY;
-        const newsCardsContainer = document.querySelector('.news-grid') || document.querySelector('main');
         
-        if (newsCardsContainer) {
-            const containerRect = newsCardsContainer.getBoundingClientRect();
-            targetY = containerRect.top - 80; // Stop just above the news cards
-            
-            // Position based on which character
-            const screenWidth = window.innerWidth;
-            if (targetSection === 'left') {
-                // Jew goes to left side (Americas area)
-                targetX = screenWidth * 0.15;
-                character.classList.remove('flip'); // Face left
-            } else if (targetSection === 'center') {
-                // India goes to center-right (Asia area)
-                targetX = screenWidth * 0.55;
-                character.classList.add('flip'); // Face right
-            } else {
-                // Africa goes to far right (Africa area)
-                targetX = screenWidth * 0.85;
-                character.classList.add('flip'); // Face right
-            }
+        // Starting positions: at the left or right edge of the bubble
+        let startX, startY;
+        
+        if (side === 'left') {
+            // Start at LEFT edge of bubble
+            startX = logoRect.left;
+            startY = logoRect.top + (logoRect.height / 2);
+            character.classList.remove('flip');
         } else {
-            // Fallback if news grid not found
-            targetY = window.innerHeight * 0.6;
-            targetX = targetSection === 'left' ? window.innerWidth * 0.2 : window.innerWidth * 0.8;
+            // Start at RIGHT edge of bubble
+            startX = logoRect.right - config.startSize;
+            startY = logoRect.top + (logoRect.height / 2);
+            character.classList.add('flip');
         }
 
-        // Starting position (behind logo, centered)
-        const startX = logoCenterX - (config.startSize / 2);
-        const startY = logoCenterY - (config.startSize / 2);
+        // Find the black line (the region nav bar)
+        // Look for the nav/section with AMERICAS, EUROPE, ASIA, etc.
+        let targetY;
+        const regionNav = document.querySelector('nav') || 
+                         document.querySelector('.regions') ||
+                         document.querySelector('[class*="region"]');
+        
+        if (regionNav) {
+            const navRect = regionNav.getBoundingClientRect();
+            targetY = navRect.top - config.endSize - 10; // Stop just above the nav
+            console.log('Found region nav at Y:', targetY);
+        } else {
+            // Fallback: find the black line visually (look for elements near the bubble)
+            const bubbleBottom = logoRect.bottom;
+            // Estimate: black line is roughly 200-250px below the bubble
+            targetY = bubbleBottom + 180;
+            console.log('Using estimated target Y:', targetY);
+        }
 
-        // Set initial state (small and invisible behind logo)
+        // End positions: spread out along the black line
+        let targetX;
+        const screenWidth = window.innerWidth;
+        
+        if (side === 'left') {
+            // Jew stops on the left side (near AMERICAS)
+            targetX = screenWidth * 0.15;
+        } else if (side === 'center') {
+            // India stops in center-right (near ASIA)
+            targetX = screenWidth * 0.5;
+        } else {
+            // Africa stops on the right side (near AFRICA)
+            targetX = screenWidth * 0.75;
+        }
+
+        // Set initial state (small, invisible, behind bubble)
         character.style.left = startX + 'px';
         character.style.top = startY + 'px';
         character.style.width = config.startSize + 'px';
         character.style.height = config.startSize + 'px';
         character.style.opacity = '0';
-        character.style.zIndex = '1'; // Behind logo initially
+        character.style.zIndex = '1';
 
         const startTime = Date.now();
         
@@ -93,34 +106,31 @@
             const elapsed = Date.now() - startTime;
             const progress = Math.min(elapsed / config.animationDuration, 1);
 
-            // Ease-out curve for more natural motion
-            const easeProgress = 1 - Math.pow(1 - progress, 3);
+            // Ease-out for smooth deceleration
+            const easeProgress = 1 - Math.pow(1 - progress, 2.5);
 
-            // Calculate current position
-            const currentX = startX + (targetX - startX - (config.endSize / 2)) * easeProgress;
+            // Calculate curved path (follows red arrow paths from image)
+            const currentX = startX + (targetX - startX) * easeProgress;
             const currentY = startY + (targetY - startY) * easeProgress;
 
-            // Calculate current size (grows as it approaches)
+            // Size grows as they approach
             const currentSize = config.startSize + (config.endSize - config.startSize) * easeProgress;
 
-            // Apply position and size
+            // Apply transformations
             character.style.left = currentX + 'px';
             character.style.top = currentY + 'px';
             character.style.width = currentSize + 'px';
             character.style.height = currentSize + 'px';
 
-            // Fade in smoothly after emerging from behind logo
-            if (progress < 0.15) {
-                // Stay invisible while behind logo
+            // Fade in as they emerge from behind bubble
+            if (progress < 0.1) {
                 character.style.opacity = '0';
                 character.style.zIndex = '1';
-            } else if (progress < 0.3) {
-                // Fade in as emerging
-                const fadeProgress = (progress - 0.15) / 0.15;
+            } else if (progress < 0.25) {
+                const fadeProgress = (progress - 0.1) / 0.15;
                 character.style.opacity = fadeProgress.toString();
-                character.style.zIndex = '10000'; // Now in front
+                character.style.zIndex = '10000';
             } else {
-                // Fully visible
                 character.style.opacity = '1';
                 character.style.zIndex = '10000';
             }
@@ -128,39 +138,38 @@
             if (progress < 1) {
                 requestAnimationFrame(animate);
             } else {
-                // Animation complete - stay at final position
-                character.style.left = (targetX - (config.endSize / 2)) + 'px';
+                // Stop at final position
+                character.style.left = targetX + 'px';
                 character.style.top = targetY + 'px';
                 character.style.width = config.endSize + 'px';
                 character.style.height = config.endSize + 'px';
                 character.style.opacity = '1';
+                console.log('Character stopped at:', targetX, targetY);
             }
         }
 
         animate();
     }
 
-    // Start the coordinated animation sequence
     function startSequence() {
-        console.log('Starting character animation sequence');
+        console.log('Starting character animation');
 
-        // Jew emerges and runs to left (Americas section)
+        // Jew emerges from LEFT side of bubble
         setTimeout(() => {
             spawnCharacter(characterImages.jew, 'left');
         }, 0);
 
-        // India emerges and runs to center-right (Asia section)
+        // India emerges from RIGHT side of bubble (center target)
         setTimeout(() => {
             spawnCharacter(characterImages.india, 'center');
-        }, 150);
+        }, 200);
 
-        // Africa emerges and runs to right (Africa section)
+        // Africa emerges from RIGHT side of bubble (right target)
         setTimeout(() => {
             spawnCharacter(characterImages.africa, 'right');
-        }, 300);
+        }, 400);
     }
 
-    // Initialize when DOM is ready
     function init() {
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() {
