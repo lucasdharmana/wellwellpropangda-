@@ -1,10 +1,10 @@
 // Character Animation Script for WELL WELL Website
-// Coordinated animation: 3 characters run from right to logo at top
+// Characters emerge from behind logo and run to screen edges
 
 (function() {
     'use strict';
 
-    // Configuration - EDIT IMAGE PATHS IF YOUR IMAGES ARE IN A DIFFERENT LOCATION
+    // Configuration
     const characterImages = {
         jew: 'images/wellwell12347_jew.png',
         africa: 'images/wellwell12347_africa.png',
@@ -13,58 +13,67 @@
 
     const config = {
         initialDelay: 3000,
-        staggerDelay: 400,
-        animationDuration: 4500,
+        animationDuration: 2000,
         characterSize: 120,
         logoSelector: '.speech-bubble',
+        edgePadding: 20,
     };
 
-    function spawnCharacter(imagePath, targetY) {
+    // Create and animate a single character
+    function spawnCharacter(imagePath, direction, stackPosition) {
         const character = document.createElement('div');
-        character.className = 'character flip';
+        character.className = 'character';
+        
+        // Flip characters going right
+        if (direction === 'right') {
+            character.classList.add('flip');
+        }
         
         const img = document.createElement('img');
         img.src = imagePath;
-        img.alt = 'Running character';
+        img.alt = 'Character';
         
         img.onerror = function() {
             console.error('Failed to load:', imagePath);
         };
         
-        img.onload = function() {
-            console.log('Loaded:', imagePath);
-        };
-        
         character.appendChild(img);
         document.body.appendChild(character);
 
-        const screenWidth = window.innerWidth;
-        const startX = screenWidth + config.characterSize;
-        const startY = targetY;
-        const endX = -config.characterSize;
-        const endY = targetY;
+        // Get logo position
+        const logo = document.querySelector(config.logoSelector);
+        let startX, startY, endX, endY;
 
+        if (logo) {
+            const rect = logo.getBoundingClientRect();
+            const logoCenterX = rect.left + (rect.width / 2);
+            const logoCenterY = rect.top + (rect.height / 2) - (config.characterSize / 2);
+            
+            startX = logoCenterX - (config.characterSize / 2);
+            startY = logoCenterY;
+
+            if (direction === 'left') {
+                // Jew goes to left edge
+                endX = config.edgePadding;
+                endY = startY;
+            } else {
+                // Africa and India go to right edge, stacked
+                const screenWidth = window.innerWidth;
+                endX = screenWidth - config.characterSize - config.edgePadding - (stackPosition * 120);
+                endY = startY;
+            }
+        } else {
+            console.warn('Logo not found');
+            startX = window.innerWidth / 2;
+            startY = 100;
+            endX = direction === 'left' ? config.edgePadding : window.innerWidth - config.characterSize - config.edgePadding;
+            endY = startY;
+        }
+
+        // Set initial position (behind logo, invisible)
         character.style.left = startX + 'px';
         character.style.top = startY + 'px';
-        character.style.opacity = '1';
-        character.classList.add('running');
-        character.style.animation = `runAcross ${config.animationDuration}ms linear`;
-
-        let logoLeft = null;
-        let logoRight = null;
-        let logoTop = null;
-        let logoBottom = null;
-
-        if (config.logoSelector) {
-            const logo = document.querySelector(config.logoSelector);
-            if (logo) {
-                const rect = logo.getBoundingClientRect();
-                logoLeft = rect.left;
-                logoRight = rect.right;
-                logoTop = rect.top;
-                logoBottom = rect.bottom;
-            }
-        }
+        character.style.opacity = '0';
 
         const startTime = Date.now();
         
@@ -73,75 +82,50 @@
             const progress = Math.min(elapsed / config.animationDuration, 1);
 
             const currentX = startX + (endX - startX) * progress;
-            const currentY = startY + (endY - startY) * progress;
+            const currentY = startY;
 
             character.style.left = currentX + 'px';
             character.style.top = currentY + 'px';
-
-            if (logoLeft !== null && logoRight !== null && logoTop !== null && logoBottom !== null) {
-                const characterRight = currentX + config.characterSize;
-                const characterBottom = currentY + config.characterSize;
-                
-                const isOverlapping = 
-                    characterRight > logoLeft &&
-                    currentX < logoRight &&
-                    characterBottom > logoTop &&
-                    currentY < logoBottom;
-
-                if (isOverlapping) {
-                    character.style.opacity = '0';
-                    character.style.transition = 'opacity 0.1s ease';
-                } else {
-                    character.style.opacity = '1';
-                }
+            
+            // Fade in as they emerge
+            if (progress < 0.2) {
+                character.style.opacity = (progress / 0.2).toString();
+            } else {
+                character.style.opacity = '1';
             }
 
             if (progress < 1) {
                 requestAnimationFrame(animate);
             } else {
-                character.remove();
+                // Animation complete - character stays on screen
+                character.style.left = endX + 'px';
+                character.style.top = endY + 'px';
+                character.style.opacity = '1';
             }
         }
 
         animate();
     }
 
-    function getTargetY() {
-        let targetY;
-
-        if (config.logoSelector) {
-            const logo = document.querySelector(config.logoSelector);
-            if (logo) {
-                const rect = logo.getBoundingClientRect();
-                targetY = rect.top + (rect.height / 2) - (config.characterSize / 2);
-                console.log('Logo found at Y:', targetY);
-            } else {
-                console.warn('Logo not found:', config.logoSelector);
-                targetY = 100;
-            }
-        } else {
-            targetY = 100;
-        }
-
-        return targetY;
-    }
-
+    // Start the coordinated animation sequence
     function startSequence() {
-        const targetY = getTargetY();
-
+        // Jew emerges from left side of logo, runs left
         setTimeout(() => {
-            spawnCharacter(characterImages.jew, targetY - 40);
+            spawnCharacter(characterImages.jew, 'left', 0);
         }, 0);
 
+        // Africa emerges from right side of logo, runs right
         setTimeout(() => {
-            spawnCharacter(characterImages.africa, targetY);
-        }, config.staggerDelay);
+            spawnCharacter(characterImages.africa, 'right', 0);
+        }, 100);
 
+        // India emerges from right side of logo, runs right (stacked with Africa)
         setTimeout(() => {
-            spawnCharacter(characterImages.india, targetY + 40);
-        }, config.staggerDelay * 2);
+            spawnCharacter(characterImages.india, 'right', 1);
+        }, 200);
     }
 
+    // Initialize when DOM is ready
     function init() {
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() {
