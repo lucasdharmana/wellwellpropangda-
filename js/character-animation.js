@@ -13,10 +13,10 @@
     const config = {
         initialDelay: 3000,
         animationDuration: 2500,
-        startSize: 30,      // Slightly bigger start for visibility
-        endSize: 300,       // DOUBLED from 150 to 300
+        startSize: 20,      // Very small start (far away effect)
+        endSize: 600,       // DOUBLED AGAIN - now 4x original size
         logoSelector: '.speech-bubble',
-        stopPositionOffset: 120  // Your perfect distance
+        stopPositionOffset: 90  // MOVED UP (was 120, now 90 to raise them)
     };
 
     function spawnCharacter(imagePath, characterType) {
@@ -61,12 +61,12 @@
             startY = logoRect.top + (logoRect.height * 0.7);
         }
 
-        // Target Y is the same for all - your perfect distance
+        // Target Y - adjusted to be higher
         const targetY = logoRect.top + config.stopPositionOffset;
         
-        // Mobile responsive sizing
+        // Mobile responsive sizing - scale down significantly on mobile
         const isMobile = window.innerWidth < 768;
-        const actualEndSize = isMobile ? config.endSize * 0.5 : config.endSize; // Scale down more on mobile
+        const actualEndSize = isMobile ? config.endSize * 0.3 : config.endSize; // Only 30% size on mobile
         
         // End X positions
         let targetX;
@@ -80,7 +80,7 @@
             targetX = isMobile ? screenWidth * 0.75 : screenWidth * 0.78;
         }
 
-        // Initial state
+        // Initial state - tiny and hidden
         character.style.left = startX + 'px';
         character.style.top = startY + 'px';
         character.style.width = config.startSize + 'px';
@@ -108,7 +108,7 @@
             const currentX = startX + (targetX - startX) * easeProgress;
             const currentY = startY + (targetY - startY) * easeProgress;
 
-            // Smooth size growth
+            // Dramatic size growth from tiny to huge
             const currentSize = config.startSize + (actualEndSize - config.startSize) * easeProgress;
 
             character.style.left = currentX + 'px';
@@ -116,7 +116,7 @@
             character.style.width = currentSize + 'px';
             character.style.height = currentSize + 'px';
 
-            // Smooth fade in as they emerge from behind bubble
+            // Smooth fade in as they emerge
             if (progress < 0.15) {
                 // Gradual fade in
                 character.style.opacity = (progress / 0.15).toString();
@@ -143,9 +143,9 @@
     }
 
     function startSequence() {
-        console.log('Starting character animation with straight diagonal paths');
-        console.log('Distance from logo top:', config.stopPositionOffset);
-        console.log('Character end size:', config.endSize);
+        console.log('Starting character animation');
+        console.log('Position offset:', config.stopPositionOffset);
+        console.log('End size:', config.endSize);
         
         setTimeout(() => spawnCharacter(characterImages.jew, 'jew'), 0);
         setTimeout(() => spawnCharacter(characterImages.india, 'india'), 300);
