@@ -1,10 +1,9 @@
 // Character Animation Script for WELL WELL Website
-// Characters emerge from behind bubble sides and run down to the black subject line
+// Characters emerge from behind bubble and follow curved paths to section border
 
 (function() {
     'use strict';
 
-    // Configuration
     const characterImages = {
         jew: 'images/wellwell12347_jew.png',
         africa: 'images/wellwell12347_africa.png',
@@ -13,127 +12,119 @@
 
     const config = {
         initialDelay: 3000,
-        animationDuration: 4000,  // Even slower
-        startSize: 30,            // Small at start (far away)
-        endSize: 180,             // 50% BIGGER than original (was 120, now 180)
+        animationDuration: 2500,  // Slower for dramatic effect
+        startSize: 25,            // Tiny (far away)
+        endSize: 120,             // Larger when close
         logoSelector: '.speech-bubble',
     };
 
-    function spawnCharacter(imagePath, side) {
+    function spawnCharacter(imagePath, characterType) {
         const character = document.createElement('div');
         character.className = 'character';
+        character.style.cssText = `
+            position: fixed;
+            pointer-events: none;
+            will-change: transform;
+        `;
         
         const img = document.createElement('img');
         img.src = imagePath;
-        img.alt = 'Character';
-        
-        img.onerror = function() {
-            console.error('Failed to load:', imagePath);
-        };
+        img.style.cssText = `
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        `;
         
         character.appendChild(img);
         document.body.appendChild(character);
 
-        // Get logo position
         const logo = document.querySelector(config.logoSelector);
-        if (!logo) {
-            console.warn('Logo not found');
-            return;
-        }
+        if (!logo) return;
 
         const logoRect = logo.getBoundingClientRect();
         
-        // Starting positions: at the CORNERS of the bubble (where it curves)
+        // Starting positions - AT the bubble edges (appearing from behind)
         let startX, startY;
         
-        if (side === 'left') {
-            // Start at LEFT CORNER/EDGE of bubble (where it curves on left side)
-            startX = logoRect.left - 20;  // Slightly outside the left edge
-            startY = logoRect.top + (logoRect.height * 0.4); // Upper-middle of bubble
-            character.classList.remove('flip');
-        } else {
-            // Start at RIGHT CORNER/EDGE of bubble (where it curves on right side)
-            startX = logoRect.right - config.startSize + 20; // Slightly outside right edge
-            startY = logoRect.top + (logoRect.height * 0.4); // Upper-middle of bubble
-            character.classList.add('flip');
+        if (characterType === 'jew') {
+            // Left edge of bubble, slightly behind
+            startX = logoRect.left + 10;
+            startY = logoRect.top + (logoRect.height * 0.6);
+        } else if (characterType === 'india') {
+            // Right edge of bubble, middle position
+            startX = logoRect.right - 30;
+            startY = logoRect.top + (logoRect.height * 0.5);
+        } else { // africa
+            // Right edge of bubble, lower position
+            startX = logoRect.right - 30;
+            startY = logoRect.top + (logoRect.height * 0.7);
         }
 
-        // Find the EXACT black line above AMERICAS, EUROPE, ASIA
-        let targetY;
+        // Find the section headers to determine stop position
+        const sectionHeaders = document.querySelectorAll('[class*="AMERICAS"], [class*="EUROPE"], [class*="ASIA"], [class*="OCEANIA"], [class*="AFRICA"], [class*="GLOBAL"]');
+        let sectionBorderY = logoRect.bottom + 200; // Default fallback
         
-        // Method 1: Look for text containing region names
-        const allElements = document.querySelectorAll('*');
-        let regionElement = null;
-        
-        for (let el of allElements) {
-            const text = el.textContent.trim();
-            if (text.includes('AMERICAS') || text.includes('AMERICA')) {
-                regionElement = el;
-                break;
-            }
-        }
-        
-        if (regionElement) {
-            const rect = regionElement.getBoundingClientRect();
-            // Stop at the line ABOVE these labels (the black line)
-            targetY = rect.top - config.endSize - 30;
-            console.log('Found AMERICAS at Y:', rect.top, '- Characters stop at:', targetY);
+        // Try to find the actual section border
+        if (sectionHeaders.length > 0) {
+            sectionBorderY = sectionHeaders[0].getBoundingClientRect().top - config.endSize - 20;
         } else {
-            // Method 2: The black line is below "CA: COMING SOON" banner
-            const bubbleBottom = logoRect.bottom;
-            const comingSoon = document.querySelector('[class*="coming"]') || 
-                             Array.from(document.querySelectorAll('*')).find(el => 
-                                 el.textContent.includes('COMING SOON')
-                             );
-            
-            if (comingSoon) {
-                const csRect = comingSoon.getBoundingClientRect();
-                targetY = csRect.bottom + 30; // Just below coming soon banner
-                console.log('Using COMING SOON position, stop at:', targetY);
-            } else {
-                // Fallback
-                targetY = bubbleBottom + 140;
-                console.log('Using fallback position:', targetY);
+            // Look for the colored section boxes
+            const breakingNews = document.querySelector('[class*="BREAKING"], h1, h2');
+            if (breakingNews) {
+                sectionBorderY = breakingNews.getBoundingClientRect().bottom + 40;
             }
         }
 
-        // End positions: spread out along the black line
-        let targetX;
+        // End positions - spread across the width above sections
+        let targetX, targetY = sectionBorderY;
         const screenWidth = window.innerWidth;
         
-        if (side === 'left') {
-            // Jew stops on the far left (near AMERICAS)
-            targetX = screenWidth * 0.12;
-        } else if (side === 'center') {
-            // India stops in center (near ASIA)
-            targetX = screenWidth * 0.48;
-        } else {
-            // Africa stops on the right (near AFRICA)
-            targetX = screenWidth * 0.72;
+        if (characterType === 'jew') {
+            targetX = screenWidth * 0.22;  // Above AMERICAS
+        } else if (characterType === 'india') {
+            targetX = screenWidth * 0.60;  // Above ASIA  
+        } else { // africa
+            targetX = screenWidth * 0.78;  // Above AFRICA
         }
 
-        // Set initial state (small, invisible, behind bubble)
+        // Initial setup - hidden behind bubble
         character.style.left = startX + 'px';
         character.style.top = startY + 'px';
         character.style.width = config.startSize + 'px';
         character.style.height = config.startSize + 'px';
         character.style.opacity = '0';
-        character.style.zIndex = '1';
+        character.style.zIndex = '999'; // Behind bubble initially
+
+        // Flip characters on right side
+        if (characterType !== 'jew') {
+            character.style.transform = 'scaleX(-1)';
+        }
 
         const startTime = Date.now();
         
         function animate() {
             const elapsed = Date.now() - startTime;
             const progress = Math.min(elapsed / config.animationDuration, 1);
+            
+            // Smooth easing for natural movement
+            const easeProgress = 1 - Math.pow(1 - progress, 3);
 
-            // Ease-out for smooth deceleration
-            const easeProgress = 1 - Math.pow(1 - progress, 2.5);
+            // Calculate position with slight curve (following your drawn paths)
+            let currentX, currentY;
+            
+            if (characterType === 'jew') {
+                // Curved path going left and down
+                const curveAmount = Math.sin(progress * Math.PI) * 30;
+                currentX = startX + (targetX - startX) * easeProgress - curveAmount;
+                currentY = startY + (targetY - startY) * easeProgress;
+            } else {
+                // Curved paths going right and down
+                const curveAmount = Math.sin(progress * Math.PI) * 40;
+                currentX = startX + (targetX - startX) * easeProgress + curveAmount;
+                currentY = startY + (targetY - startY) * easeProgress;
+            }
 
-            // Calculate curved path (follows red arrow paths from image)
-            const currentX = startX + (targetX - startX) * easeProgress;
-            const currentY = startY + (targetY - startY) * easeProgress;
-
-            // Size grows as they approach
+            // Size grows as they get closer
             const currentSize = config.startSize + (config.endSize - config.startSize) * easeProgress;
 
             // Apply transformations
@@ -142,57 +133,37 @@
             character.style.width = currentSize + 'px';
             character.style.height = currentSize + 'px';
 
-            // Fade in as they emerge from behind bubble
-            if (progress < 0.1) {
-                character.style.opacity = '0';
-                character.style.zIndex = '1';
-            } else if (progress < 0.25) {
-                const fadeProgress = (progress - 0.1) / 0.15;
-                character.style.opacity = fadeProgress.toString();
-                character.style.zIndex = '10000';
+            // Emerge from behind bubble
+            if (progress < 0.15) {
+                // Still behind bubble
+                character.style.opacity = progress / 0.15;
+                character.style.zIndex = '999';
             } else {
+                // Now in front
                 character.style.opacity = '1';
                 character.style.zIndex = '10000';
             }
 
             if (progress < 1) {
                 requestAnimationFrame(animate);
-            } else {
-                // Stop at final position
-                character.style.left = targetX + 'px';
-                character.style.top = targetY + 'px';
-                character.style.width = config.endSize + 'px';
-                character.style.height = config.endSize + 'px';
-                character.style.opacity = '1';
-                console.log('Character stopped at:', targetX, targetY);
             }
         }
 
-        animate();
+        requestAnimationFrame(animate);
     }
 
     function startSequence() {
-        console.log('Starting character animation');
+        console.log('Starting character animation sequence');
 
-        // Jew emerges from LEFT side of bubble
-        setTimeout(() => {
-            spawnCharacter(characterImages.jew, 'left');
-        }, 0);
-
-        // India emerges from RIGHT side of bubble (center target)
-        setTimeout(() => {
-            spawnCharacter(characterImages.india, 'center');
-        }, 200);
-
-        // Africa emerges from RIGHT side of bubble (right target)
-        setTimeout(() => {
-            spawnCharacter(characterImages.africa, 'right');
-        }, 400);
+        // Stagger the animations for visual interest
+        setTimeout(() => spawnCharacter(characterImages.jew, 'jew'), 0);
+        setTimeout(() => spawnCharacter(characterImages.india, 'india'), 300);
+        setTimeout(() => spawnCharacter(characterImages.africa, 'africa'), 600);
     }
 
     function init() {
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(startSequence, config.initialDelay);
             });
         } else {
