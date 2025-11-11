@@ -14,9 +14,9 @@
         initialDelay: 3000,
         animationDuration: 2500,
         startSize: 20,      // Very small start (far away effect)
-        endSize: 600,       // DOUBLED AGAIN - now 4x original size
+        endSize: 300,       // DOUBLED AGAIN - now 4x original size
         logoSelector: '.speech-bubble',
-        stopPositionOffset: 90  // MOVED UP (was 120, now 90 to raise them)
+        stopPositionOffset: 20  // MOVED UP (was 120, now 90 to raise them)
     };
 
     function spawnCharacter(imagePath, characterType) {
