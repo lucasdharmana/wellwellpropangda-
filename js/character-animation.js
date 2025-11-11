@@ -13,11 +13,10 @@
     const config = {
         initialDelay: 3000,
         animationDuration: 2500,
-        startSize: 20,
-        endSize: 150,
+        startSize: 30,      // Slightly bigger start for visibility
+        endSize: 300,       // DOUBLED from 150 to 300
         logoSelector: '.speech-bubble',
-        // REDUCED BY 50% - Characters stop much closer to logo now
-        stopPositionOffset: 250  // Fixed distance from TOP of logo (was effectively 400+ before)
+        stopPositionOffset: 120  // Your perfect distance
     };
 
     function spawnCharacter(imagePath, characterType) {
@@ -49,28 +48,26 @@
         let startX, startY;
         
         if (characterType === 'jew') {
-            startX = logoRect.left + 10;
+            // Left edge of bubble
+            startX = logoRect.left + 20;
             startY = logoRect.top + (logoRect.height * 0.6);
         } else if (characterType === 'india') {
-            startX = logoRect.right - 30;
+            // Right edge of bubble - middle height
+            startX = logoRect.right - 40;
             startY = logoRect.top + (logoRect.height * 0.5);
         } else { // africa
-            startX = logoRect.right - 30;
+            // Right edge of bubble - lower height
+            startX = logoRect.right - 40;
             startY = logoRect.top + (logoRect.height * 0.7);
         }
 
-        // FIXED CALCULATION - Now properly positions from logo TOP
-        // This ensures they stop in the white space above sections
+        // Target Y is the same for all - your perfect distance
         const targetY = logoRect.top + config.stopPositionOffset;
         
-        // Log for debugging
-        console.log(`Character ${characterType} will stop at Y: ${targetY}`);
-        console.log(`Logo top: ${logoRect.top}, Logo bottom: ${logoRect.bottom}`);
-
         // Mobile responsive sizing
         const isMobile = window.innerWidth < 768;
-        const actualEndSize = isMobile ? config.endSize * 0.6 : config.endSize;
-
+        const actualEndSize = isMobile ? config.endSize * 0.5 : config.endSize; // Scale down more on mobile
+        
         // End X positions
         let targetX;
         const screenWidth = window.innerWidth;
@@ -102,22 +99,16 @@
             const elapsed = Date.now() - startTime;
             const progress = Math.min(elapsed / config.animationDuration, 1);
             
-            const easeProgress = 1 - Math.pow(1 - progress, 3);
+            // Smooth PowerPoint-style easing (ease-in-out)
+            const easeProgress = progress < 0.5 
+                ? 2 * progress * progress 
+                : 1 - Math.pow(-2 * progress + 2, 2) / 2;
 
-            // Calculate positions with curves
-            let currentX, currentY;
-            
-            if (characterType === 'jew') {
-                const curve = Math.sin(progress * Math.PI) * 15;
-                currentX = startX + (targetX - startX) * easeProgress - curve;
-            } else {
-                const curve = Math.sin(progress * Math.PI) * 15;
-                currentX = startX + (targetX - startX) * easeProgress + curve;
-            }
-            
-            currentY = startY + (targetY - startY) * easeProgress;
+            // STRAIGHT DIAGONAL PATHS - No curves!
+            const currentX = startX + (targetX - startX) * easeProgress;
+            const currentY = startY + (targetY - startY) * easeProgress;
 
-            // Grow in size (using adjusted size for mobile)
+            // Smooth size growth
             const currentSize = config.startSize + (actualEndSize - config.startSize) * easeProgress;
 
             character.style.left = currentX + 'px';
@@ -125,11 +116,13 @@
             character.style.width = currentSize + 'px';
             character.style.height = currentSize + 'px';
 
-            // Emerge from behind bubble
-            if (progress < 0.1) {
-                character.style.opacity = progress / 0.1;
+            // Smooth fade in as they emerge from behind bubble
+            if (progress < 0.15) {
+                // Gradual fade in
+                character.style.opacity = (progress / 0.15).toString();
                 character.style.zIndex = '999';
             } else {
+                // Fully visible and in front
                 character.style.opacity = '1';
                 character.style.zIndex = '9999';
             }
@@ -137,8 +130,12 @@
             if (progress < 1) {
                 requestAnimationFrame(animate);
             } else {
-                // Ensure final position is exact
+                // Lock final position
+                character.style.left = targetX + 'px';
                 character.style.top = targetY + 'px';
+                character.style.width = actualEndSize + 'px';
+                character.style.height = actualEndSize + 'px';
+                console.log(`${characterType} locked at X: ${targetX}, Y: ${targetY}, Size: ${actualEndSize}`);
             }
         }
 
@@ -146,8 +143,9 @@
     }
 
     function startSequence() {
-        console.log('Starting character animation');
-        console.log('Current offset:', config.stopPositionOffset);
+        console.log('Starting character animation with straight diagonal paths');
+        console.log('Distance from logo top:', config.stopPositionOffset);
+        console.log('Character end size:', config.endSize);
         
         setTimeout(() => spawnCharacter(characterImages.jew, 'jew'), 0);
         setTimeout(() => spawnCharacter(characterImages.india, 'india'), 300);
@@ -172,6 +170,11 @@
         startSequence: startSequence,
         testPosition: function(offset) {
             config.stopPositionOffset = offset;
+            document.querySelectorAll('.character').forEach(c => c.remove());
+            startSequence();
+        },
+        testSize: function(size) {
+            config.endSize = size;
             document.querySelectorAll('.character').forEach(c => c.remove());
             startSequence();
         }
