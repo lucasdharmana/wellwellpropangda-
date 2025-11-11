@@ -16,9 +16,8 @@
         startSize: 20,
         endSize: 150,
         logoSelector: '.speech-bubble',
-        // MANUAL ADJUSTMENT: Change this value to move characters up or down
-        // Negative values = move up, Positive values = move down
-        stopPositionOffset: 80  // Start with 80px below logo bottom, adjust as needed
+        // REDUCED BY 50% - Characters stop much closer to logo now
+        stopPositionOffset: 250  // Fixed distance from TOP of logo (was effectively 400+ before)
     };
 
     function spawnCharacter(imagePath, characterType) {
@@ -60,12 +59,13 @@
             startY = logoRect.top + (logoRect.height * 0.7);
         }
 
-        // SIMPLIFIED TARGET Y POSITION
-        // This puts them in the white space between logo and sections
-        const targetY = logoRect.bottom + config.stopPositionOffset - config.endSize;
+        // FIXED CALCULATION - Now properly positions from logo TOP
+        // This ensures they stop in the white space above sections
+        const targetY = logoRect.top + config.stopPositionOffset;
         
         // Log for debugging
-        console.log(`Logo bottom: ${logoRect.bottom}, Target Y: ${targetY}`);
+        console.log(`Character ${characterType} will stop at Y: ${targetY}`);
+        console.log(`Logo top: ${logoRect.top}, Logo bottom: ${logoRect.bottom}`);
 
         // Mobile responsive sizing
         const isMobile = window.innerWidth < 768;
@@ -117,7 +117,7 @@
             
             currentY = startY + (targetY - startY) * easeProgress;
 
-            // Grow in size
+            // Grow in size (using adjusted size for mobile)
             const currentSize = config.startSize + (actualEndSize - config.startSize) * easeProgress;
 
             character.style.left = currentX + 'px';
@@ -136,6 +136,9 @@
 
             if (progress < 1) {
                 requestAnimationFrame(animate);
+            } else {
+                // Ensure final position is exact
+                character.style.top = targetY + 'px';
             }
         }
 
@@ -144,7 +147,7 @@
 
     function startSequence() {
         console.log('Starting character animation');
-        console.log('Adjust config.stopPositionOffset to fine-tune position');
+        console.log('Current offset:', config.stopPositionOffset);
         
         setTimeout(() => spawnCharacter(characterImages.jew, 'jew'), 0);
         setTimeout(() => spawnCharacter(characterImages.india, 'india'), 300);
