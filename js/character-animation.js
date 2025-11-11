@@ -1,5 +1,5 @@
 // Character Animation Script for WELL WELL Website
-// Characters emerge from behind bubble and follow curved paths to section border
+// Characters emerge from behind bubble and stop at section border line
 
 (function() {
     'use strict';
@@ -12,9 +12,9 @@
 
     const config = {
         initialDelay: 3000,
-        animationDuration: 2500,  // Slower for dramatic effect
-        startSize: 25,            // Tiny (far away)
-        endSize: 120,             // Larger when close
+        animationDuration: 2500,
+        startSize: 20,              // Very small start
+        endSize: 150,               // 50% bigger than before (was 100)
         logoSelector: '.speech-bubble',
     };
 
@@ -43,59 +43,96 @@
 
         const logoRect = logo.getBoundingClientRect();
         
-        // Starting positions - AT the bubble edges (appearing from behind)
+        // Starting positions - at bubble edges
         let startX, startY;
         
         if (characterType === 'jew') {
-            // Left edge of bubble, slightly behind
             startX = logoRect.left + 10;
             startY = logoRect.top + (logoRect.height * 0.6);
         } else if (characterType === 'india') {
-            // Right edge of bubble, middle position
             startX = logoRect.right - 30;
             startY = logoRect.top + (logoRect.height * 0.5);
         } else { // africa
-            // Right edge of bubble, lower position
             startX = logoRect.right - 30;
             startY = logoRect.top + (logoRect.height * 0.7);
         }
 
-        // Find the section headers to determine stop position
-        const sectionHeaders = document.querySelectorAll('[class*="AMERICAS"], [class*="EUROPE"], [class*="ASIA"], [class*="OCEANIA"], [class*="AFRICA"], [class*="GLOBAL"]');
-        let sectionBorderY = logoRect.bottom + 200; // Default fallback
+        // CRITICAL: Find the exact position of the section border line
+        let targetY;
         
-        // Try to find the actual section border
-        if (sectionHeaders.length > 0) {
-            sectionBorderY = sectionHeaders[0].getBoundingClientRect().top - config.endSize - 20;
+        // Method 1: Find section labels and position just above them
+        const sectionElements = Array.from(document.querySelectorAll('*')).filter(el => {
+            const text = el.textContent ? el.textContent.trim() : '';
+            return text === 'AMERICAS' || text === 'EUROPE' || text === 'ASIA' || 
+                   text === 'OCEANIA' || text === 'AFRICA' || text === 'GLOBAL';
+        });
+
+        if (sectionElements.length > 0) {
+            // Get the top of the first section label
+            const firstLabel = sectionElements[0];
+            const labelRect = firstLabel.getBoundingClientRect();
+            // Position character so bottom edge touches the line above labels
+            targetY = labelRect.top - config.endSize;
+            console.log('Found section label, positioning at:', targetY);
         } else {
-            // Look for the colored section boxes
-            const breakingNews = document.querySelector('[class*="BREAKING"], h1, h2');
-            if (breakingNews) {
-                sectionBorderY = breakingNews.getBoundingClientRect().bottom + 40;
+            // Method 2: Look for the navigation container with the labels
+            const navContainer = document.querySelector('[class*="navigation"]') ||
+                               document.querySelector('[class*="sections"]') ||
+                               document.querySelector('[class*="categories"]');
+            
+            if (navContainer) {
+                const navRect = navContainer.getBoundingClientRect();
+                targetY = navRect.top - config.endSize;
+            } else {
+                // Method 3: Calculate based on "CA: COMING SOON" position
+                const comingSoon = Array.from(document.querySelectorAll('*')).find(el => 
+                    el.textContent && el.textContent.includes('CA: COMING SOON')
+                );
+                
+                if (comingSoon) {
+                    const csRect = comingSoon.getBoundingClientRect();
+                    // The section border is roughly 40-60px below the coming soon banner
+                    targetY = csRect.bottom + 60;
+                } else {
+                    // Fallback based on logo
+                    targetY = logoRect.bottom + 100;
+                }
             }
         }
 
-        // End positions - spread across the width above sections
-        let targetX, targetY = sectionBorderY;
+        // Ensure characters don't overlap on mobile by adjusting size based on viewport
+        const isMobile = window.innerWidth < 768;
+        const actualEndSize = isMobile ? config.endSize * 0.6 : config.endSize;
+        
+        // Adjust Y position for mobile to account for smaller size
+        if (isMobile) {
+            targetY = targetY - (config.endSize - actualEndSize);
+        }
+
+        // End X positions - spread across width
+        let targetX;
         const screenWidth = window.innerWidth;
         
         if (characterType === 'jew') {
-            targetX = screenWidth * 0.22;  // Above AMERICAS
+            // Above AMERICAS (left side)
+            targetX = isMobile ? screenWidth * 0.15 : screenWidth * 0.18;
         } else if (characterType === 'india') {
-            targetX = screenWidth * 0.60;  // Above ASIA  
+            // Above ASIA (center-right)
+            targetX = isMobile ? screenWidth * 0.50 : screenWidth * 0.55;
         } else { // africa
-            targetX = screenWidth * 0.78;  // Above AFRICA
+            // Above AFRICA (right side)
+            targetX = isMobile ? screenWidth * 0.75 : screenWidth * 0.78;
         }
 
-        // Initial setup - hidden behind bubble
+        // Initial state - hidden behind bubble
         character.style.left = startX + 'px';
         character.style.top = startY + 'px';
         character.style.width = config.startSize + 'px';
         character.style.height = config.startSize + 'px';
         character.style.opacity = '0';
-        character.style.zIndex = '999'; // Behind bubble initially
+        character.style.zIndex = '999';
 
-        // Flip characters on right side
+        // Flip right-side characters
         if (characterType !== 'jew') {
             character.style.transform = 'scaleX(-1)';
         }
@@ -106,46 +143,46 @@
             const elapsed = Date.now() - startTime;
             const progress = Math.min(elapsed / config.animationDuration, 1);
             
-            // Smooth easing for natural movement
             const easeProgress = 1 - Math.pow(1 - progress, 3);
 
-            // Calculate position with slight curve (following your drawn paths)
+            // Simple curved paths
             let currentX, currentY;
             
             if (characterType === 'jew') {
-                // Curved path going left and down
-                const curveAmount = Math.sin(progress * Math.PI) * 30;
-                currentX = startX + (targetX - startX) * easeProgress - curveAmount;
-                currentY = startY + (targetY - startY) * easeProgress;
+                // Slight curve left
+                const curve = Math.sin(progress * Math.PI) * 15;
+                currentX = startX + (targetX - startX) * easeProgress - curve;
             } else {
-                // Curved paths going right and down
-                const curveAmount = Math.sin(progress * Math.PI) * 40;
-                currentX = startX + (targetX - startX) * easeProgress + curveAmount;
-                currentY = startY + (targetY - startY) * easeProgress;
+                // Slight curve right  
+                const curve = Math.sin(progress * Math.PI) * 15;
+                currentX = startX + (targetX - startX) * easeProgress + curve;
             }
+            
+            currentY = startY + (targetY - startY) * easeProgress;
 
-            // Size grows as they get closer
-            const currentSize = config.startSize + (config.endSize - config.startSize) * easeProgress;
+            // Grow in size (using adjusted size for mobile)
+            const currentSize = config.startSize + (actualEndSize - config.startSize) * easeProgress;
 
-            // Apply transformations
             character.style.left = currentX + 'px';
             character.style.top = currentY + 'px';
             character.style.width = currentSize + 'px';
             character.style.height = currentSize + 'px';
 
             // Emerge from behind bubble
-            if (progress < 0.15) {
-                // Still behind bubble
-                character.style.opacity = progress / 0.15;
+            if (progress < 0.1) {
+                character.style.opacity = progress / 0.1;
                 character.style.zIndex = '999';
             } else {
-                // Now in front
                 character.style.opacity = '1';
-                character.style.zIndex = '10000';
+                character.style.zIndex = '9999'; // Below 10000 to not cover critical UI
             }
 
             if (progress < 1) {
                 requestAnimationFrame(animate);
+            } else {
+                // Final positioning adjustment to ensure they're right on the line
+                character.style.top = targetY + 'px';
+                console.log(`${characterType} final position - X: ${targetX}, Y: ${targetY}`);
             }
         }
 
@@ -153,9 +190,8 @@
     }
 
     function startSequence() {
-        console.log('Starting character animation sequence');
-
-        // Stagger the animations for visual interest
+        console.log('Starting character animation');
+        
         setTimeout(() => spawnCharacter(characterImages.jew, 'jew'), 0);
         setTimeout(() => spawnCharacter(characterImages.india, 'india'), 300);
         setTimeout(() => spawnCharacter(characterImages.africa, 'africa'), 600);
